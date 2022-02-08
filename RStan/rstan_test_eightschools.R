@@ -1,0 +1,56 @@
+## rstan_test
+# https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started
+
+.libPaths()
+
+# ------------------------------------------------------------------------ #
+cat("Load packages\n")
+#library(Rcpp)
+#library(RcppEigen)
+library(rstan)
+
+# ------------------------------------------------------------------------ #
+#### Eight schools: ####
+
+# schools.stan in same directory
+
+## Data:
+cat("Define data\n")
+schools_dat <- list(J = 8, 
+                    y = c(28,  8, -3,  7, -1,  1, 18, 12),
+                    sigma = c(15, 10, 16, 11,  9, 11, 10, 18))
+
+## Fit:
+cat("Start fitting\n")
+
+setwd(".")
+
+start.time <- Sys.time()
+
+fit <- stan(file = "schools.stan", data = schools_dat)
+
+end.time <- Sys.time()
+duration <- difftime(end.time,start.time)
+print(paste("Duration =",duration))
+
+## Output:
+cat("Print output\n")
+print(fit)
+
+## Plots:
+plot(fit)
+pairs(fit, pars = c("mu", "tau", "lp__"))
+
+la <- extract(fit, permuted = TRUE) # return a list of arrays 
+mu <- la$mu 
+
+### return an array of three dimensions: iterations, chains, parameters 
+a <- extract(fit, permuted = FALSE) 
+
+### use S3 functions on stanfit objects
+a2 <- as.array(fit)
+m <- as.matrix(fit)
+d <- as.data.frame(fit)
+
+cat("End of script\n")
+# END
